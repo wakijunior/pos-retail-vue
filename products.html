@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/style.css">
+    <title>Products - POS</title>
+
+</head>
+
+<body>
+    <div id="products">
+        <nav class="navbar navbar-dark bg-dark px-3">
+            <a href="dashboard.html" class="btn btn-light">Back</a>
+            <span class="text-white">Products</span>
+        </nav>
+
+        <div class="container mt-4">
+
+            <h3>Add Product</h3>
+            <form class="row g-2" @submit.prevent="createProduct">
+                <input class="form-control col" placeholder="Product Name" v-model="product_name">
+                <input class="form-control col" placeholder="Price" v-model="price">
+                <input class="form-control col" placeholder="Quantity" v-model="quantity">
+                <button type="submit" class="btn btn-primary col-2">Add</button>
+            </form>
+
+            <hr>
+
+            <h3>Product List</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody v-for="product in products" :key="product.id">
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.quantity }}</td>
+                        <td>Ksh. {{ product.price.toFixed(2) }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @click="editProduct(product)">
+                                Edit
+                            </button>
+
+                            <button class="btn btn-danger btn-sm" @click="deleteProduct(product.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- 1. Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <!-- 2. Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- 3. jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- 4. DataTables -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/products.js"></script>
+</body>
+
+</html>
