@@ -27,6 +27,8 @@ const appSales = new Vue({
             location: "Nairobi, Kenya",
             phone: "0789 000000"
         },
+        payments: [],
+        loadingPayments: false,
         token: localStorage.getItem("token")
     },
 
@@ -70,8 +72,31 @@ const appSales = new Vue({
                 .catch(err => console.error(err));
         },
 
+        async fetchPayments() {
+
+            this.loadingPayments = true;
+
+            try {
+
+                const res = await axios.get("http://127.0.0.1:5000/mpesa-payments", {
+                    headers: {
+                        Authorization: "Bearer " + this.token
+                    }
+                });
+
+                this.payments = res.data;
+
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.loadingPayments = false;
+            }
+        },
+
         addToCart(product) {
             const existing = this.cart.find(item => item.id === product.id);
+
+            console.log("Adding to cart-------------:", product);
 
             if (existing) {
                 existing.quantity++;
@@ -112,40 +137,6 @@ const appSales = new Vue({
             this.saveCart();
         },
 
-        // checkout() {
-        //     if (!this.cart.length) return;
-
-        //     const confirmBuy = confirm(`Proceed to checkout? Total: ${this.total}`);
-        //     if (!confirmBuy) return;
-
-        //     const requests = this.cart.map(item => {
-        //         return API.post('/sales', {
-        //             product_id: item.id
-        //         });
-        //     });
-
-        //     Promise.all(requests)
-        //         .then(responses => {
-        //             const saleIds = responses.map(r => r.data.sale_id);
-        //             const sale_id = saleIds[0];
-
-        //             return API.post('/stk-push', {
-        //                 phone_number: '2547XXXXXXXX',
-        //                 amount: this.cart.reduce((a, b) => a + b.price * b.qty, 0),
-        //                 sale_id: sale_id
-        //             });
-        //         })
-        //         .then(() => {
-        //             alert("STK Push sent 📲");
-        //             this.cart = [];
-        //             this.saveCart();
-        //         })
-        //         .catch(err => {
-        //             console.error(err);
-        //             alert("Checkout failed");
-        //         });
-        // },
-
         checkout() {
             if (!this.cart.length) return;
 
@@ -158,11 +149,14 @@ const appSales = new Vue({
                 date: new Date().toLocaleString()
             };
 
+            console.log("my receipt data------------:", receiptData);
+
             const requests = this.cart.map(item => {
                 return API.post('/sales', {
                     product_id: item.id
                 });
             });
+
 
             Promise.all(requests)
                 .then(responses => {
@@ -170,8 +164,8 @@ const appSales = new Vue({
                     const sale_id = saleIds[0];
 
                     return API.post('/stk-push', {
-                        phone_number: '2547XXXXXXXX',
-                        amount: this.cart.reduce((a, b) => a + b.price * b.qty, 0),
+                        phone_number: '254720247234',  // REPLACE WITH ACTUAL PHONE NUMBER
+                        amount: this.total,
                         sale_id: sale_id
                     });
                 })
@@ -218,14 +212,6 @@ const appSales = new Vue({
 
             win.document.close();
         },
-        logout() {
-            API.post('/logout')
-                .finally(() => {
-                    localStorage.removeItem("token");
-                    this.token = null;
-                    window.location.href = "login.html";
-                });
-        },
 
         saveCart() {
             localStorage.setItem('cart', JSON.stringify(this.cart));
@@ -236,7 +222,16 @@ const appSales = new Vue({
             if (saved) {
                 this.cart = JSON.parse(saved);
             }
-        }
+        },
+
+        logout() {
+            API.post('/logout')
+                .finally(() => {
+                    localStorage.removeItem("token");
+                    this.token = null;
+                    window.location.href = "login.html";
+                });
+        },
     },
 
     mounted() {
